@@ -1,0 +1,22 @@
+apiVersion: v2
+appVersion: 2.3.14
+dependencies:
+  # https://artifacthub.io/packages/helm/truecharts-library-charts/common
+  - name: common
+    repository: https://library-charts.truecharts.org
+    version: 14.2.0
+description: Fully functional mail server with free version
+home: https://poste.io/
+icon: https://poste.io/favicon.ico
+keywords:
+  - "mail"
+  - "poste.io"
+kubeVersion: ">=1.23.0-0"
+maintainers:
+  - email: bpteodor@users.noreply.github.com
+    name: Teo
+name: poste-io
+sources:
+  - https://github.com/bran-tech/poste-io
+  - https://github.com/truecharts/charts/blob/master/templates/chart/Chart.yaml
+version: 0.1.0
