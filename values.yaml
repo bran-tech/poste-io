@@ -21,9 +21,9 @@ ingress:
               name: main
               port: 3380
     ingressClassName: nginx
-    #tls: 
-    #  secretName: poste-io-tls
-    #  hosts: ["mx.brantech.dev"]
+    tls: 
+      - secretName: poste-io-tls
+        hosts: ["mx.brantech.dev"]
 operator:
   verify:
     enabled: false
