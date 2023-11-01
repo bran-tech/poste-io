@@ -16,4 +16,8 @@ spec:
   {{- if $vol.volumeName}}
   volumeName: {{ $vol.volumeName}}
   {{- end }}
+  {{- if $vol.selector}}
+  selector: 
+    {{- toYaml $vol.selector | nindent 4 }}
+  {{- end }}
 {{- end }}
