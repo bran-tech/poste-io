@@ -1,155 +1,124 @@
+
+replicaCount: 1
+
 image:
   repository: analogic/poste.io
-  tag: "2.3.14"
+  pullPolicy: IfNotPresent
+  tag: "2.3.12" # Overrides the image tag whose default is the chart appVersion.
 
-ingress:
-  main:
-    enabled: true
-    annotations:
-      #traefik.ingress.kubernetes.io/router.entrypoints: websecure
-      #traefik.ingress.kubernetes.io/router.tls: "true"
-      cert-manager.io/cluster-issuer: letsencrypt
-      acme.cert-manager.io/http01-edit-in-place: "true"  # https://cert-manager.io/docs/usage/ingress/#supported-annotations
-      kubernetes.io/ingress.class: "nginx"
-    clusterIssuer: letsencrypt
-    hosts:
-      - host: mx.brantech.dev
-        paths:
-          - path: /
-            pathType: Prefix
-            service:
-              name: main
-              port: 3380
-    ingressClassName: nginx
-    tls: 
-      - secretName: poste-io-tls
-        hosts: ["mx.brantech.dev"]
-operator:
-  verify:
-    enabled: false
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
 
-#arguments:
-#  - "--name"
-#  - "mailserver"
-#  - "-h"
-#  - "mail.example.com"
+deploy:
+  strategy: Recreate # pt ca portul este ocupat deja (network: host)
+  network:
+    hostNetwork: true
+    hostAliases:
+      - ip: "127.0.0.1"
+        hostnames:
+          - "aurora"
+          - "aurora.local"
+  mount:
+    data:
+      mountPath: /data
+      volume:
+        persistentVolumeClaim:
+          claimName: poste-io-data
+    logs:
+      mountPath: /data/log
+      volume:
+        emptyDir:
+          sizeLimit: 100Mi
+    localtime:
+      mountPath: /etc/localtime
+      readOnly: true
+      volume:
+        hostPath:
+          path: /etc/localtime
 
-notes:
-  header: Thank you for installing <{{ .Chart.Name }}>.
-  custom: ""
-  footer: |
-    # Documentation
-    - How to configure Poste.io: https://poste.io/doc/
-    - Chart-src: https://github.com/bran-tech/poste-io
-    - True-Chart (helm library): https://truecharts.org/manual/helm/common/
-
-persistence:
-  data:
-    enabled: true
-    mountPath: "/data"
-    type: pvc
-    retain: true
-    storageClassName: local-data
-    size: 20Gi
-  varlogs:
-    enabled: true
-    mountPath: "/data/log"
-    type: emptyDir
-    size: 50Mi
-  localtime:
-    enabled: true
-    mountPath: /etc/localtime
-    type: hostPath
-    hostPath: /etc/localtime
-    readOnly: true
-  varrun:
-    enabled: false
-  devshm:
-    enable: false
-  shared:
-    enabled: false
-  tmp:
-    enabled: false
-
-#podOptions:
-#  hostNetwork: true # official recomandation
-
-resources:
-  limits:
-    cpu: 1
-    memory: 1Gi
-
-securityContext:
-  container:
-    PUID: 1069
-    runAsGroup: 0
-    runAsUser: 0
-    privileged: true
-    allowPrivilegeEscalation: true
-    readOnlyRootFilesystem: false
-  pod:
-    fsGroup: 1069
+env:
+  - name: HTTPS
+    value: "OFF"
+  - name: HTTP_PORT
+    value: "3180"
+  - name: DISABLE_CLAMAV
+    value: "TRUE"
 
 service:
-  main:
-    enabled: true
-    ports:
-      main:
-        port: 3380
-        protocol: http
-  websecure:
-    enabled: false
-    ports:
-      websecure:
-        port: 443
-  mail:
-    enabled: true
-    ports:
-      mail:
-        enabled: true
-        port: 25
-  imap:
-    enabled: true
-    ports:
-      imap:
-        enabled: true
-        port: 143
-  msa:
-    enabled: true
-    ports:
-      msa:
-        enabled: true
-        port: 587
+  type: ClusterIP
+  port: 3180
 
-TZ: Europe/Berlin
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations: 
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    cert-manager.io/cluster-issuer: letsencrypt
+    acme.cert-manager.io/http01-edit-in-place: "true"  # https://cert-manager.io/docs/usage/ingress/#supported-annotations
+    #kubernetes.io/ingress.class: "nginx"
+  hosts:
+    - host: mx.brantech.dev
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: 
+    - secretName: poste-io-tls
+      hosts:
+      - mx.brantech.dev
 
-workload:
-  main:
-    enabled: true
-    primary: true
-    type: StatefulSet
-    podSpec:
-      containers:
-        main:
-          enabled: true
-          primary: true
-          env:
-            HTTPS: OFF
-            HTTP_PORT: "3380"
-            HTTPS_PORT: "443"
-            DISABLE_CLAMAV: "TRUE"
-            DISABLE_ROUNDCUBE: "FALSE"
-          probes:
-            liveness:
-              type: tcp
-              port: 25
-            readiness:
-              type: tcp
-              port: 25
-              #type: http
-              #port: 3380
-      hostNetwork: true
-      #hostAliases:
-      #  ip: "127.0.0.1"
-      #  hotnames: ["hermes"]
-      #nodeSelector: 
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# create PVCs
+storage:
+  poste-io-data:
+    accessModes: ["ReadWriteOnce"]
+    storageClassName: local-data
+    size: 10Gi
+    volumeName: poste-io-data
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
