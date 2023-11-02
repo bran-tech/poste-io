@@ -47,14 +47,13 @@ spec:
         - containerPort: 995
         env:
           {{- toYaml .Values.env | nindent 10 }}
-        #livenessProbe:
-        #  httpGet:
-        #    path: /
-        #    port: http
-        #readinessProbe:
-        #  httpGet:
-        #    path: /
-        #    port: http
+        livenessProbe:
+          tcpSocket:
+            port: 25
+        readinessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.service.port }}
         volumeMounts:
           {{- range $name, $i := .Values.deploy.mount }}
           - name: {{ $name }}

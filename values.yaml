@@ -84,7 +84,7 @@ storage:
     accessModes: ["ReadWriteOnce"]
     storageClassName: local-data
     size: 10Gi
-    volumeName: poste-io-data
+    #volumeName: poste-io-data
 
 podAnnotations: {}
 
