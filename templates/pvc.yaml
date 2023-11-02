@@ -1,0 +1,23 @@
+{{- range $name, $vol := .Values.storage }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "poste-io.labels" $ | nindent 4 }}
+spec:
+  accessModes: {{ $vol.accessModes }}
+  volumeMode: {{ $vol.volumeMode | default "Filesystem" }}
+  storageClassName: {{ $vol.storageClassName }}
+  resources:
+    requests:
+      storage: {{ $vol.size }}
+  {{- if $vol.volumeName}}
+  volumeName: {{ $vol.volumeName}}
+  {{- end }}
+  {{- if $vol.selector}}
+  selector: 
+    {{- toYaml $vol.selector | nindent 4 }}
+  {{- end }}
+{{- end }}
