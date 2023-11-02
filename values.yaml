@@ -46,6 +46,7 @@ env:
     value: "TRUE"
 
 service:
+  enabled: true
   type: ClusterIP
   port: 3180
 
