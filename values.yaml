@@ -11,7 +11,7 @@ nameOverride: ""
 fullnameOverride: ""
 
 deploy:
-  strategy: Recreate # pt ca portul este ocupat deja (network: host)
+  strategy: Recreate # on update the port is already occupied (network: host)
   network:
     hostNetwork: true
     #hostAliases:
@@ -23,13 +23,17 @@ deploy:
     data:
       mountPath: /data
       volume:
-        persistentVolumeClaim:
-          claimName: poste-io-data
+        # this part goes to `spec.template.spec.volumes`
+        hostPath:
+          path: /var/lib/poste.io/
+        # example: reference PVC
+        #persistentVolumeClaim:
+        #  claimName: poste-io-data
     logs:
       mountPath: /data/log
       volume:
-        emptyDir:
-          sizeLimit: 100Mi
+        hostPath:
+          path: /var/log/poste.io/
     localtime:
       mountPath: /etc/localtime
       readOnly: true
@@ -84,12 +88,12 @@ serviceAccount:
   name: ""
 
 # create PVCs
-storage:
-  poste-io-data:
-    accessModes: ["ReadWriteOnce"]
-    #storageClassName: local-data
-    size: 2Gi
-    #volumeName: poste-io-data
+storage: {}
+  #poste-io-data:
+  #  accessModes: ["ReadWriteOnce"]
+  #  storageClassName: local-data
+  #  size: 2Gi
+  #  #volumeName: poste-io-data
 
 podAnnotations: {}
 
@@ -104,17 +108,13 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+resources:
+  limits:
+    cpu: 1
+    memory: 1Gi
+  requests:
+    cpu: 10m
+    memory: 200Mi
 
 nodeSelector: {}
 
