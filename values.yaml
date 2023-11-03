@@ -4,7 +4,7 @@ replicaCount: 1
 image:
   repository: analogic/poste.io
   pullPolicy: IfNotPresent
-  tag: "2.3.12" # Overrides the image tag whose default is the chart appVersion.
+  #tag: "2.3.12" # Overrides the image tag whose default is the chart appVersion.
 
 imagePullSecrets: []
 nameOverride: ""
@@ -14,11 +14,11 @@ deploy:
   strategy: Recreate # pt ca portul este ocupat deja (network: host)
   network:
     hostNetwork: true
-    hostAliases:
-      - ip: "127.0.0.1"
-        hostnames:
-          - "aurora"
-          - "aurora.local"
+    #hostAliases:
+    #  - ip: "127.0.0.1"
+    #    hostnames:
+    #      - "example"
+    #      - "example.com"
   mount:
     data:
       mountPath: /data
@@ -42,8 +42,16 @@ env:
     value: "OFF"
   - name: HTTP_PORT
     value: "3180"
+  - name: HTTPS_PORT
+    value: "4433"
   - name: DISABLE_CLAMAV
     value: "TRUE"
+  #- name: DISABLE_RSPAMD
+  #  value: "TRUE"
+  - name: DISABLE_ROUNDCUBE
+    value: "FALSE"
+  #- name: ELASTICSEARCH
+  #  value: "123.123.123.123:9200"
 
 service:
   enabled: true
@@ -51,23 +59,20 @@ service:
   port: 3180
 
 ingress:
-  enabled: true
-  className: "nginx"
-  annotations: 
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
-    cert-manager.io/cluster-issuer: letsencrypt
-    acme.cert-manager.io/http01-edit-in-place: "true"  # https://cert-manager.io/docs/usage/ingress/#supported-annotations
-    #kubernetes.io/ingress.class: "nginx"
-  hosts:
-    - host: mx.brantech.dev
-      paths:
-        - path: /
-          pathType: Prefix
-  tls: 
-    - secretName: poste-io-tls
-      hosts:
-      - mx.brantech.dev
+  enabled: false
+  #className: "nginx"
+  #annotations: 
+  #  cert-manager.io/cluster-issuer: letsencrypt
+  #  acme.cert-manager.io/http01-edit-in-place: "true"
+  #hosts:
+  #  - host: mail.example.com
+  #    paths:
+  #      - path: /
+  #        pathType: Prefix
+  #tls: 
+  #  - secretName: poste-io-tls
+  #    hosts:
+  #    - mail.example.com
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -82,8 +87,8 @@ serviceAccount:
 storage:
   poste-io-data:
     accessModes: ["ReadWriteOnce"]
-    storageClassName: local-data
-    size: 10Gi
+    #storageClassName: local-data
+    size: 2Gi
     #volumeName: poste-io-data
 
 podAnnotations: {}
@@ -110,13 +115,6 @@ resources: {}
   # requests:
   #   cpu: 100m
   #   memory: 128Mi
-
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 2
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
 
 nodeSelector: {}
 
