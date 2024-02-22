@@ -50,6 +50,9 @@ service:
   type: ClusterIP
   port: 3180
 
+# additional [Init Containers](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
+initContainers: []
+
 ingress:
   enabled: true
   className: "nginx"
