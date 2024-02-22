@@ -25,6 +25,9 @@ spec:
         {{- include "poste-io.selectorLabels" . | nindent 8 }}
     spec:
       {{- toYaml .Values.deploy.network | nindent 6 }}
+      # init containers
+      initContainers: []
+      # main container
       containers:
       - name: {{ .Chart.Name }}
         securityContext:
