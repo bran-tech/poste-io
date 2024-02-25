@@ -26,7 +26,10 @@ spec:
     spec:
       {{- toYaml .Values.deploy.network | nindent 6 }}
       # init containers
-      initContainers: {{- toYaml .Values.initContainers }}
+      {{- if .Values.initContainers }}
+      initContainers: 
+      {{- toYaml .Values.initContainers | nindent 6 }}
+      {{- end }}
       # main container
       containers:
       - name: {{ .Chart.Name }}

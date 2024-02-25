@@ -23,13 +23,13 @@ deploy:
     data:
       mountPath: /data
       volume:
-        persistentVolumeClaim:
-          claimName: poste-io-data
+        #persistentVolumeClaim:
+        #  claimName: poste-io-data
     logs:
       mountPath: /data/log
       volume:
-        emptyDir:
-          sizeLimit: 100Mi
+        #emptyDir:
+        #  sizeLimit: 100Mi
     localtime:
       mountPath: /etc/localtime
       readOnly: true
