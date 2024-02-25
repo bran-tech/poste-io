@@ -26,7 +26,10 @@ spec:
     spec:
       {{- toYaml .Values.deploy.network | nindent 6 }}
       # init containers
-      initContainers: {{- toYaml .Values.initContainers }}
+      {{- if .Values.initContainers }}
+      initContainers: 
+      {{- toYaml .Values.initContainers | nindent 6 }}
+      {{- end }}
       # main container
       containers:
       - name: {{ .Chart.Name }}
@@ -58,17 +61,22 @@ spec:
             path: /
             port: {{ .Values.service.port }}
         volumeMounts:
-          {{- range $name, $i := .Values.deploy.mount }}
+          {{- range $name, $i := .Values.deploy.persistence }}
+          {{- if $i.mnt }}
           - name: {{ $name }}
-            mountPath: {{ $i.mountPath }}
-            readOnly: {{ $i.readOnly | default false }}
+            {{- toYaml $i.mnt | nindent 12 }}
+          {{- end }}
           {{- end }}
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
       volumes:
-        {{- range $name,$i := .Values.deploy.mount }}
+        {{- range $name,$i := .Values.deploy.persistence }}
         - name: {{ $name }}
-          {{- toYaml $i.volume | nindent 10 }}
+          {{- if $i.vol }}
+          {{- toYaml $i.vol | nindent 10 }}
+          {{ else }}
+          {{- toYaml $i.defaultVol | nindent 10 }}
+          {{- end }}
         {{- end }}
 
       {{- with .Values.nodeSelector }}

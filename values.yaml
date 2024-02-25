@@ -19,21 +19,35 @@ deploy:
         hostnames:
           - "aurora"
           - "aurora.local"
-  mount:
+  # this define both volumes & volumeMounts
+  persistence:
     data:
-      mountPath: /data
-      volume:
+      # volumeMount definition
+      mnt:
+        mountPath: /data
+      # volume definition replaces default (subchart can override default config)
+      vol:
+      # default volume definition
+      defaultVol:
         persistentVolumeClaim:
           claimName: poste-io-data
     logs:
-      mountPath: /data/log
-      volume:
+      mnt:
+        mountPath: /data/log
+      # volume definition replaces default (subchart can override default config)
+      vol:
+      # default volume definition
+      defaultVol:
         emptyDir:
           sizeLimit: 100Mi
     localtime:
-      mountPath: /etc/localtime
-      readOnly: true
-      volume:
+      mnt:
+        mountPath: /etc/localtime
+        readOnly: true
+      # volume definition replaces default (subchart can override default config)
+      vol:
+      # default volume definition
+      defaultVol:
         hostPath:
           path: /etc/localtime
 
@@ -83,11 +97,10 @@ serviceAccount:
 
 # create PVCs
 storage:
-  poste-io-data:
-    accessModes: ["ReadWriteOnce"]
-    storageClassName: local-data
-    size: 10Gi
-    #volumeName: poste-io-data
+  #poste-io-data:
+  #  accessModes: ["ReadWriteOnce"]
+  #  storageClassName: local-data
+  #  size: 10Gi
 
 podAnnotations: {}
 
