@@ -83,11 +83,10 @@ serviceAccount:
 
 # create PVCs
 storage:
-  poste-io-data:
-    accessModes: ["ReadWriteOnce"]
-    storageClassName: local-data
-    size: 10Gi
-    #volumeName: poste-io-data
+  #poste-io-data:
+  #  accessModes: ["ReadWriteOnce"]
+  #  storageClassName: local-data
+  #  size: 10Gi
 
 podAnnotations: {}
 
