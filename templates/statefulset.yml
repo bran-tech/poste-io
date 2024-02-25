@@ -61,17 +61,20 @@ spec:
             path: /
             port: {{ .Values.service.port }}
         volumeMounts:
-          {{- range $name, $i := .Values.deploy.mount }}
+          {{- range $name, $i := .Values.deploy.persitence }}
+          {{- if $i.mnt }}
           - name: {{ $name }}
-            mountPath: {{ $i.mountPath }}
-            readOnly: {{ $i.readOnly | default false }}
+            {{- toYaml $i.mnt | nindent 12 }}
+          {{- end }}
           {{- end }}
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
       volumes:
-        {{- range $name,$i := .Values.deploy.mount }}
+        {{- range $name,$i := .Values.deploy.persitence }}
+        {{- if $i.vol }}
         - name: {{ $name }}
-          {{- toYaml $i.volume | nindent 10 }}
+          {{- toYaml $i.vol | nindent 10 }}
+        {{- end }}
         {{- end }}
 
       {{- with .Values.nodeSelector }}

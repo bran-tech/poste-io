@@ -19,21 +19,27 @@ deploy:
         hostnames:
           - "aurora"
           - "aurora.local"
-  mount:
+  # this define both volumes & volumeMounts. Configuration copied from
+  # - ".deploy.persistence.<name>.vol"
+  # - ".deploy.persistence.<name>.mnt"
+  persitence:
     data:
-      mountPath: /data
-      volume:
+      mnt:
+        mountPath: /data
+      vol:
         #persistentVolumeClaim:
         #  claimName: poste-io-data
     logs:
-      mountPath: /data/log
-      volume:
-        #emptyDir:
-        #  sizeLimit: 100Mi
+      mnt:
+        mountPath: /data/log
+      vol:
+        emptyDir:
+          sizeLimit: 100Mi
     localtime:
-      mountPath: /etc/localtime
-      readOnly: true
-      volume:
+      mnt:
+        mountPath: /etc/localtime
+        readOnly: true
+      vol:
         hostPath:
           path: /etc/localtime
 
