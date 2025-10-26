@@ -1,16 +1,24 @@
 apiVersion: v2
-appVersion: 2.3.19
-description: Fully functional mail server with free version
+name: poste-io
+version: 0.4.0
+description: A Help Chart for the poste-io mail server.
+
+appVersion: 2.5.7
 home: https://poste.io/
 icon: https://poste.io/favicon.ico
-keywords:
-  - "mail"
-  - "poste.io"
-kubeVersion: ">=1.23.0-0"
+keywords: [mail, "poste.io", POP3, SMTP, IMAP, Spamassassin, WebMail, WebAdmin]
+
 maintainers:
   - email: bpteodor@users.noreply.github.com
     name: Teo
-name: poste-io
+
 sources:
   - https://github.com/bran-tech/poste-io
-version: 0.3.0
+
+kubeVersion: ">=1.28.0-0"
+
+dependencies:
+  # https://github.com/bjw-s-labs/helm-charts/tree/main/charts/library/common
+  - name: common
+    version: 4.4.0
+    repository: https://bjw-s-labs.github.io/helm-charts/
