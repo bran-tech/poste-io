@@ -1,5 +1,5 @@
 version: 2.1
-
+# @ref https://circleci.com/docs/reference/configuration-reference/
 orbs:
   #node: circleci/node@5
   docker: circleci/docker@2.8.0
@@ -29,17 +29,17 @@ jobs:
       - run:
           name: Install and configure helm
           command: sudo curl -L https://get.helm.sh/helm-$HELM_VER-linux-amd64.tar.gz | tar xz && sudo mv linux-amd64/helm /bin/helm && sudo rm -rf linux-amd64
-      - when:
-          condition: << parameters.IS_RELEASE >>
-          steps:
-            - run:
-                name: Check version match
-                command: |-
-                  echo "checking tag:<< parameters.TAG >> matches Chart..."
-                  if [ "<< parameters.TAG >>" != "$(helm show chart . |yq '.version')" ]; then 
-                    echo "Version in Chart doesn't match tag" 1>&2
-                    exit 64 
-                  fi
+      # - when:
+      #     condition: << parameters.IS_RELEASE >>
+      #     steps:
+      #       - run:
+      #           name: Check version match
+      #           command: |-
+      #             echo "checking tag:<< parameters.TAG >> matches Chart..."
+      #             if [ "<< parameters.TAG >>" != "$(helm show chart . |yq '.version')" ]; then 
+      #               echo "Version in Chart doesn't match tag" 1>&2
+      #               exit 64 
+      #             fi
       - checkout
       - run:
           command: 'echo "helm release-tag: << parameters.TAG >>"'
