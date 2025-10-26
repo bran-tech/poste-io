@@ -1,0 +1,94 @@
+version: 2.1
+#parameters:
+#  image_tag:
+#    type: string
+#    default: 0.0.0-$CIRCLE_BRANCH
+orbs:
+  #node: circleci/node@5
+  docker: circleci/docker@2.8.0
+
+# parameters:
+#   IS_RELEASE:
+#     description: if set to true will push chart to repo
+#     type: boolean
+#     default: false
+
+jobs:
+  build-chart:
+    docker:
+      - image: cimg/base:stable
+    environment:
+      CHART_NAME: "poste-io"
+      HELM_VER: v3.19.0
+    parameters:
+      TAG:
+        type: string
+        description: tag used for versioning the helm chart
+      IS_RELEASE:
+        description: if set to true will push chart to repo
+        type: boolean
+        default: false
+    steps:
+      - when:
+          condition: << parameters.IS_RELEASE >>
+          steps:
+            - run:
+                name: Check version match
+                command: |-
+                  if [  << parameters.IS_RELEASE >> -gt 0 ]; then
+                    echo "checking tag:<< parameters.TAG >> matches Chart..."
+                    if [ "<< parameters.TAG >>" != "$(helm show chart . |yq '.version')" ]; then 
+                      echo "Version in Chart doesn't match tag" 1>&2
+                      exit 64 
+                    fi
+                  else
+                    echo " $CHART_NAME - << parameters.TAG >> - no version check required"
+                  fi
+      - run:
+          name: Install and configure helm
+          command: sudo curl -L https://get.helm.sh/helm-$HELM_VER-linux-amd64.tar.gz | tar xz && sudo mv linux-amd64/helm /bin/helm && sudo rm -rf linux-amd64
+      - checkout
+      - run:
+          command: 'echo "helm release-tag: << parameters.TAG >>"'
+      - run:
+          name: Update helm dependencies
+          command: helm dep update
+      - run:
+          name: Packaging the Helm Chart
+          command: helm package . --version << parameters.TAG >>
+      - run:
+          name: Login to Helm Registry
+          command: helm registry login $OCI_SERVER --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASSWORD
+      - when:
+          condition: << parameters.IS_RELEASE >>
+          steps:
+            - run:
+                name: Pushing Helm chart to registry
+                command: helm push "$CHART_NAME-<< parameters.TAG >>.tgz" "oci://$OCI_SERVER/$DOCKERHUB_USERNAME"
+
+workflows:
+  build:
+    when:
+      and:
+        - not: << pipeline.git.branch.is_default >>
+        - not: << pipeline.git.tag >>
+    jobs:
+      - build-chart:
+          TAG: 0.0.0-<< pipeline.git.branch >>
+          IS_RELEASE: false
+          context:
+            - docker-hub
+
+  release:
+    when: << pipeline.git.tag >>
+    jobs:
+      - build-chart:
+          #requires:
+          #  - build-chart
+          TAG: << pipeline.git.tag >>
+          IS_RELEASE: true
+          filters:
+            tags:
+              only: /\d+\.\d+\.\d+.*/
+          context:
+            - docker-hub
