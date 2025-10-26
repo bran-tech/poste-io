@@ -26,6 +26,9 @@ jobs:
         type: boolean
         default: false
     steps:
+      - run:
+          name: Install and configure helm
+          command: sudo curl -L https://get.helm.sh/helm-$HELM_VER-linux-amd64.tar.gz | tar xz && sudo mv linux-amd64/helm /bin/helm && sudo rm -rf linux-amd64
       - when:
           condition: << parameters.IS_RELEASE >>
           steps:
@@ -37,9 +40,6 @@ jobs:
                     echo "Version in Chart doesn't match tag" 1>&2
                     exit 64 
                   fi
-      - run:
-          name: Install and configure helm
-          command: sudo curl -L https://get.helm.sh/helm-$HELM_VER-linux-amd64.tar.gz | tar xz && sudo mv linux-amd64/helm /bin/helm && sudo rm -rf linux-amd64
       - checkout
       - run:
           command: 'echo "helm release-tag: << parameters.TAG >>"'
