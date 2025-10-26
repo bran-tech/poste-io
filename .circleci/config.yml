@@ -32,14 +32,10 @@ jobs:
             - run:
                 name: Check version match
                 command: |-
-                  if [  << parameters.IS_RELEASE >> -gt 0 ]; then
-                    echo "checking tag:<< parameters.TAG >> matches Chart..."
-                    if [ "<< parameters.TAG >>" != "$(helm show chart . |yq '.version')" ]; then 
-                      echo "Version in Chart doesn't match tag" 1>&2
-                      exit 64 
-                    fi
-                  else
-                    echo " $CHART_NAME - << parameters.TAG >> - no version check required"
+                  echo "checking tag:<< parameters.TAG >> matches Chart..."
+                  if [ "<< parameters.TAG >>" != "$(helm show chart . |yq '.version')" ]; then 
+                    echo "Version in Chart doesn't match tag" 1>&2
+                    exit 64 
                   fi
       - run:
           name: Install and configure helm
