@@ -3,8 +3,8 @@
 
 ```sh
 # build
-helm dep update
-helm package . -d charts/
+helm dep update # optional if -u
+helm package . -u -d /tmp/
 # install
 helm upgrade --install my-mail .
 # install tag
