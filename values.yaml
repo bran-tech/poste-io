@@ -1,3 +1,7 @@
+ports:
+  http: &httpPort 3180
+  https: &httpsPort 4433
+
 #
 # @see https://bjw-s-labs.github.io/helm-charts/docs/common-library/
 #
@@ -19,9 +23,9 @@ controllers:
           # To disable all redirects to encrypted HTTP, useful if you are using some kind of reverse proxy (put this argument before image name!)
           HTTPS: "OFF"
           # Custom HTTP port. Note that you will need to handle Let's Encrypt requests on port 80, so if you're using a reverse proxy setup, you'll need to forward the /.well-known/ folder to this port.
-          HTTP_PORT: "3180"
+          HTTP_PORT: "*httpPort"
           # Custom HTTPS port
-          HTTPS_PORT: "4433"
+          HTTPS_PORT: "*httpsPort"
           # To disable ClamAV, it is useful for low mem usage
           DISABLE_CLAMAV: "TRUE"
           # To disable Rspamd, it is useful for low mem usage.
@@ -30,25 +34,45 @@ controllers:
           DISABLE_ROUNDCUBE: "FALSE"
           # Elasticsearch integration (PRO only) https://poste.io/doc/elasticsearch
           ELASTICSEARCH: "123.123.123.123:9200"
-        pod:
-          resources:
-            requests:
-              memory: 1Gi
-              cpu: 100m
+        ports:
+        - containerPort: *httpPort
+          hostPort: *httpPort
+        #- containerPort: *httpsPort
+        #  hostPort: *httpsPort
+        - containerPort: 25
+          hostPort: 25
+        - containerPort: 110
+          hostPort: 110
+        - containerPort: 143
+          hostPort: 143
+        - containerPort: 465
+          hostPort: 465
+        - containerPort: 587
+          hostPort: 587
+        - containerPort: 993
+          hostPort: 993
+        - containerPort: 995
+          hostPort: 995
+        - containerPort: 4190
+          hostPort: 4190
+        resources:
+          requests:
+            memory: 1Gi
+            cpu: 100m
 
 defaultPodOptions:
   # see https://poste.io/doc/network-schemes
   hostNetwork: true
-  #hostname: "example"
-  # see https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/
-  hostAliases: []
+  hostname: "mx"
+  #nodeSelector:
+  #  kubernetes.io/hostname: <node name>
 
 service:
   main:
     controller: main
     ports:
       http:
-        port: 3180
+        port: *httpPort
 
 ingress:
   main:
@@ -73,7 +97,7 @@ persistence:
   data:
     type: persistentVolumeClaim
     accessMode: ReadWriteOnce
-    size: 5Gi
+    size: 1Gi
     globalMounts:
       - path: /data
   log:
