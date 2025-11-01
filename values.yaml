@@ -89,7 +89,7 @@ persistence:
 
   # -- should selec a node if hostNetwork=true
   # [[ref]](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector)
-  nodeSelector: {}
+  #nodeSelector: {}
 # old ---------------------------
 
 # deploy:

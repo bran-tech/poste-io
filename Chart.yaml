@@ -3,7 +3,7 @@ name: poste-io
 version: 0.4.0
 description: A Help Chart for the poste-io mail server.
 
-appVersion: 2.5.7
+appVersion: 2.x.x
 home: https://poste.io/
 icon: https://poste.io/favicon.ico
 keywords: [mail, "poste.io", POP3, SMTP, IMAP, Spamassassin, WebMail, WebAdmin]
