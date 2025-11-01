@@ -15,7 +15,7 @@ controllers:
         # See [image docs](https://poste.io/doc/getting-started#download)
         env:
           # Timezone settings for correct datetime
-          TZ: "Europe/Prague"
+          TZ: "Europe/Berlin"
           # To disable all redirects to encrypted HTTP, useful if you are using some kind of reverse proxy (put this argument before image name!)
           HTTPS: "OFF"
           # Custom HTTP port. Note that you will need to handle Let's Encrypt requests on port 80, so if you're using a reverse proxy setup, you'll need to forward the /.well-known/ folder to this port.
@@ -51,19 +51,20 @@ service:
         port: 3180
 
 ingress:
-  enabled: false
-  #className: "nginx"
-  #annotations:
-  #  cert-manager.io/cluster-issuer: letsencrypt
-  hosts:
-    - host: poste-io.local
-      paths:
-        - path: /
-          pathType: Prefix
-  tls:
-    - secretName: poste-io-tls
-      hosts:
-        - poste-io.local
+  main:
+    #className: "nginx"
+    hosts:
+      - host: &host "poste-io.local"
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: main
+              port: http
+    tls:
+      - secretName: poste-io-tls
+        hosts:
+          - *host
 
 # TODO api-gateway config
 #route:
