@@ -14,4 +14,5 @@
 *.sw?
 
 charts/
+Chart.lock
 _bak/
