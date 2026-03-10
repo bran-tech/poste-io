@@ -29,7 +29,7 @@ controllers:
           # To disable Roundcube webmail.
           DISABLE_ROUNDCUBE: "FALSE"
           # Elasticsearch integration (PRO only) https://poste.io/doc/elasticsearch
-          ELASTICSEARCH: "123.123.123.123:9200"
+          #ELASTICSEARCH: "123.123.123.123:9200"
         ports:
           - containerPort: 3180
             hostPort: 3180
