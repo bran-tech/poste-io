@@ -1,6 +1,6 @@
 apiVersion: v2
 name: poste-io
-version: 0.4.0
+version: 0.4.1
 description: A Help Chart for the poste-io mail server.
 
 appVersion: 2.x.x
