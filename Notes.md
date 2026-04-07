@@ -4,9 +4,19 @@
 ```sh
 # build
 helm dep update # optional if -u
-helm package . -u -d /tmp/
+
+# build
+VERSION=0.4.1
+helm package charts/ --version $VERSION
+# push to registry
+OCI_SERVER=oci://registry-1.docker.io
+DOCKERHUB_USERNAME=
+DOCKERHUB_PASSWORD=
+helm registry login $OCI_SERVER --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASSWORD
+helm push charts/poste-io-$VERSION.tgz $OCI_SERVER/$DOCKERHUB_USERNAME
+
 # install
-helm upgrade --install my-mail .
+helm upgrade --install my-mail charts/poste-io-$VERSION.tgz
 # or install tag
-helm upgrade --install my-mail oci://registry-1.docker.io/bpteodor/poste-io:0.4.1
+helm upgrade --install my-mail oci://registry-1.docker.io/$DOCKERHUB_USERNAME/poste-io:$VERSION
 ```
