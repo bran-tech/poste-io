@@ -7,7 +7,7 @@ helm dep update # optional if -u
 
 # build
 VERSION=0.4.1
-helm package charts/ --version $VERSION
+helm package . --version $VERSION -d charts/
 # push to registry
 OCI_SERVER=oci://registry-1.docker.io
 DOCKERHUB_USERNAME=
