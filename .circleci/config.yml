@@ -2,7 +2,7 @@ version: 2.1
 # @ref https://circleci.com/docs/reference/configuration-reference/
 orbs:
   #node: circleci/node@5
-  docker: circleci/docker@2.8.0
+  docker: circleci/docker@4
 
 # parameters:
 #   IS_RELEASE:
@@ -16,7 +16,7 @@ jobs:
       - image: cimg/base:stable
     environment:
       CHART_NAME: "poste-io"
-      HELM_VER: v3.19.0
+      HELM_VER: v4.2.0
     parameters:
       TAG:
         type: string
@@ -49,15 +49,15 @@ jobs:
       - run:
           name: Packaging the Helm Chart
           command: helm package . --version << parameters.TAG >>
-      - when:
-          condition: << parameters.IS_RELEASE >>
-          steps:
-            - run:
-                name: Login to Helm Registry
-                command: helm registry login $OCI_SERVER --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASSWORD
-            - run:
-                name: Pushing Helm chart to registry
-                command: helm push "$CHART_NAME-<< parameters.TAG >>.tgz" "oci://$OCI_SERVER/$DOCKERHUB_USERNAME"
+      # - when:
+      #     condition: << parameters.IS_RELEASE >>
+      #     steps:
+      - run:
+          name: Login to Helm Registry
+          command: helm registry login $OCI_SERVER --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASSWORD
+      - run:
+          name: Pushing Helm chart to registry
+          command: helm push "$CHART_NAME-<< parameters.TAG >>.tgz" "oci://$OCI_SERVER/$DOCKERHUB_USERNAME"
 
 workflows:
   build:
